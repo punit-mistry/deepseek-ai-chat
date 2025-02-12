@@ -15,9 +15,13 @@ export default function Home() {
       <div className="relative z-10">
         {/* Header section */}
         <header className="pt-16 pb-8 px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 tracking-tight">
-            DeepSeek AI Chat
-          </h1>
+          <div className="animate-border inline-block rounded-3xl bg-[linear-gradient(110deg,#0ea5e9,45%,#8b5cf6,55%,#ec4899)] bg-[length:200%_100%] p-0.5">
+            <div className="rounded-3xl px-8 py-4 bg-gray-900">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 tracking-tight">
+                DeepSeek AI Chat
+              </h1>
+            </div>
+          </div>
           <div className="mt-6 max-w-2xl mx-auto">
             <p className="text-gray-300 text-lg">
               Experience the power of advanced AI conversation. Simply type your message and press Enter to interact with DeepSeek R1.
