@@ -86,7 +86,7 @@ export default function AIChat() {
             <div className="prose prose-invert max-w-none">
                 <ReactMarkdown
                     components={{
-                        code({ node, inline, className, children, ...props }) {
+                        code({ inline, className, children, ...props }) {
                             const match = /language-(\w+)/.exec(className || '');
                             return !inline && match ? (
                                 <div className="relative group">
