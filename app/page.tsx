@@ -1,8 +1,21 @@
+'use client';
+
+import { useState } from 'react';
 import AIChat from './components/AIChat';
 import RotatingCube from './components/RotatingCube';
+import ModelSwitch from './components/ModelSwitch';
+import PromptTemplates from './components/PromptTemplates';
 import './styles/cube.css';
 
 export default function Home() {
+  const [currentModel, setCurrentModel] = useState('deepseek-chat');
+  const [chatKey, setChatKey] = useState(0); // Used to reset chat when model changes
+
+  const handleModelChange = (model: string) => {
+    setCurrentModel(model);
+    setChatKey(prev => prev + 1); // Reset chat when model changes
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white overflow-hidden">
       {/* Glowing background effect */}
@@ -24,20 +37,32 @@ export default function Home() {
           </div>
           <div className="mt-6 max-w-2xl mx-auto">
             <p className="text-gray-300 text-lg">
-              Experience the power of advanced AI conversation. Simply type your message and press Enter to interact with DeepSeek R1.
+              Experience the power of advanced AI conversation. Simply type your message or use a template below.
             </p>
           </div>
         </header>
 
         {/* Main chat section */}
         <main className="max-w-4xl mx-auto px-4 pb-16 relative">
-          {/* Add a subtle blur effect behind the chat to improve readability */}
-          <div className="absolute inset-0 backdrop-blur-sm rounded-3xl"></div>
+          {/* Model Switch */}
+          <ModelSwitch currentModel={currentModel} onModelChange={handleModelChange} />
           
-          {/* Glowing border effect */}
+          {/* Prompt Templates */}
+          <PromptTemplates onTemplateSelect={(prompt) => {
+            // You'll need to implement this method in AIChat component
+            // to programmatically set and submit a message
+            const chatElement = document.querySelector('[data-chat-input]') as HTMLTextAreaElement;
+            if (chatElement) {
+              chatElement.value = prompt;
+              chatElement.dispatchEvent(new Event('input', { bubbles: true }));
+              chatElement.form?.dispatchEvent(new Event('submit', { bubbles: true }));
+            }
+          }} />
+
+          {/* Chat container */}
           <div className="relative p-[1px] rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-            <div className="backdrop-blur-xl bg-gray-900/90 rounded-2xl">
-              <AIChat />
+            <div className="bg-gray-900 rounded-2xl">
+              <AIChat key={chatKey} model={currentModel} />
             </div>
           </div>
 

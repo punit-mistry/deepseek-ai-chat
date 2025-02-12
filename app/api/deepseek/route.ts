@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     try {
         // Parse the request body
         const body = await request.json();
-        const { messages } = body as { messages: Message[] };
+        const { messages, model } = body as { messages: Message[], model: string };
 
         // Get the last user message
         const userMessage = messages.find((msg: Message) => msg.role === "user")?.content;
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "deepseek-r1:1.5b",  // or your preferred model
+                model: 'deepseek-r1:1.5b',
                 prompt: userMessage,
                 stream: false
             })

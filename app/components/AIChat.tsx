@@ -15,7 +15,11 @@ interface Message {
     content: string;
 }
 
-export default function AIChat() {
+interface Props {
+    model: string;
+}
+
+export default function AIChat({ model }: Props) {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
@@ -51,9 +55,8 @@ export default function AIChat() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    messages: [
-                        { role: "user", content: userMessage }
-                    ]
+                    messages: [{ role: "user", content: userMessage }],
+                    model: model
                 })
             });
 
@@ -117,7 +120,7 @@ export default function AIChat() {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-[600px] bg-gray-900/50 rounded-xl shadow-lg flex flex-col">
+        <div className="w-full max-w-4xl mx-auto h-[600px] bg-gray-900 rounded-xl shadow-lg flex flex-col">
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message, index) => (
@@ -125,7 +128,7 @@ export default function AIChat() {
                         <div className={`max-w-[85%] ${
                             message.role === 'user' 
                                 ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-800/80 text-gray-100'
+                                : 'bg-gray-800 text-gray-100'
                             } rounded-2xl px-4 py-2 ${
                                 message.role === 'user' ? 'rounded-tr-none' : 'rounded-tl-none'
                             }`}
@@ -152,12 +155,13 @@ export default function AIChat() {
             <div className="border-t border-gray-700 p-4">
                 <form onSubmit={handleSubmit} className="flex gap-2">
                     <textarea
+                        data-chat-input
                         ref={textareaRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Type a message... (Press Enter to send)"
-                        className="flex-1 resize-none p-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 text-gray-100 placeholder-gray-400"
+                        className="flex-1 resize-none p-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 text-gray-100 placeholder-gray-400"
                         rows={1}
                     />
                     <button
