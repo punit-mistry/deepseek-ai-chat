@@ -53,8 +53,12 @@ export async function POST(request: Request) {
             });
 
             const data = await response.json();
+            
+            // Clean up response by removing <think> tags
+            const cleanedResponse = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
             return NextResponse.json({
-                content: data.response
+                content: cleanedResponse
             });
         } catch (error: any) {
             console.error('LLM API error:', error);
