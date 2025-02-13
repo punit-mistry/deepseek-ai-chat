@@ -8,7 +8,7 @@ type PromptTemplatesProps = {
 };
 
 export default function PromptTemplates({ onTemplateSelect }: PromptTemplatesProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const templates = [
     {

@@ -19,9 +19,10 @@ interface Message {
 interface Props {
     model: string;
     modernUIMode: boolean;
+    llmUrl: string;
 }
 
-export default function AIChat({ model, modernUIMode }: Props) {
+export default function AIChat({ model, modernUIMode, llmUrl }: Props) {
     const { isSignedIn } = useUser();
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -75,17 +76,28 @@ export default function AIChat({ model, modernUIMode }: Props) {
                 body: JSON.stringify({
                     messages: [{ role: "user", content: userMessage }],
                     model,
-                    modernUIMode
+                    modernUIMode,
+                    llmUrl
                 })
             });
 
             const data = await res.json();
-            setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
+            if (data.error) {
+                setMessages(prev => [...prev, { 
+                    role: 'assistant', 
+                    content: `❌ ${data.error}` 
+                }]);
+            } else {
+                setMessages(prev => [...prev, { 
+                    role: 'assistant', 
+                    content: data.content 
+                }]);
+            }
         } catch (error) {
             console.error('Error:', error);
             setMessages(prev => [...prev, { 
                 role: 'assistant', 
-                content: '❌ Sorry, there was an error processing your request.' 
+                content: '❌ Failed to process your request. Please try again.' 
             }]);
         } finally {
             setLoading(false);

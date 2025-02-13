@@ -11,8 +11,6 @@ interface Message {
 export async function POST(request: Request) {
     try {
         const { userId } = await auth();
-
-        // Check if user is authenticated
         if (!userId) {
             return NextResponse.json(
                 { error: 'Authentication required' },
@@ -21,9 +19,10 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { messages, modernUIMode } = body as { 
+        const { messages, modernUIMode, llmUrl } = body as { 
             messages: Message[], 
-            modernUIMode: boolean 
+            modernUIMode: boolean,
+            llmUrl: string 
         };
 
         const userMessage = messages.find((msg: Message) => msg.role === "user")?.content;
@@ -35,35 +34,46 @@ export async function POST(request: Request) {
             );
         }
 
-        // Construct the prompt with system message if modernUIMode is active
         let finalPrompt = userMessage;
         if (modernUIMode) {
             finalPrompt = "Make this AI modern and minimalistic like ShadCN UI. Focus on clean, minimal design patterns.\n\n" + userMessage;
         }
 
-        // Call local Ollama endpoint with exact payload structure
-        const response = await fetch('http://localhost:11434/api/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: "deepseek-r1:1.5b",  // Use fixed model name
-                prompt: finalPrompt,
-                stream: false
-            })
-        });
+        try {
+            const response = await fetch(`${llmUrl}/api/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: "deepseek-r1:1.5b",
+                    prompt: finalPrompt,
+                    stream: false
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
+            return NextResponse.json({
+                content: data.response
+            });
+        } catch (error: any) {
+            console.error('LLM API error:', error);
+            let errorMessage = 'Failed to connect to LLM API';
+            
+            if (error.cause?.code === 'ECONNREFUSED') {
+                errorMessage = `Cannot connect to LLM at ${llmUrl}. Please make sure the server is running and the URL is correct.`;
+            }
 
-        return NextResponse.json({
-            content: data.response
-        });
+            return NextResponse.json(
+                { error: errorMessage },
+                { status: 502 }
+            );
+        }
 
     } catch (error) {
-        console.error('Local API error:', error);
+        console.error('API error:', error);
         return NextResponse.json(
-            { error: 'Failed to process request' },
+            { error: 'An unexpected error occurred' },
             { status: 500 }
         );
     }

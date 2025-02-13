@@ -7,11 +7,13 @@ import ContextToggle from './components/ContextToggle';
 import ModelSelector from './components/ModelSelector';
 import './styles/cube.css';
 import RotatingCube from './components/RotatingCube';
+import LLMConfig from './components/LLMConfig';
 
 export default function Home() {
   const [currentModel, setCurrentModel] = useState('deepseek-r1:1.5b');
   const [chatKey, setChatKey] = useState(0);
   const [isModernUIMode, setIsModernUIMode] = useState(false);
+  const [llmUrl, setLlmUrl] = useState('http://localhost:11434');
 
   const handleModelChange = (model: string) => {
     setCurrentModel(model);
@@ -54,7 +56,11 @@ export default function Home() {
 
         {/* Main chat section */}
         <main className="flex-1 overflow-hidden px-4 relative pl-24">
-          <div className="mb-4 flex flex-col items-center gap-4">
+          <div className="mb-4 flex max-w-4xl mx-auto items-center gap-4">
+            <LLMConfig 
+              currentUrl={llmUrl}
+              onUrlChange={setLlmUrl}
+            />
             <ModelSelector 
               currentModel={currentModel}
               onModelChange={handleModelChange}
@@ -75,6 +81,7 @@ export default function Home() {
                   key={chatKey} 
                   model={currentModel} 
                   modernUIMode={isModernUIMode}
+                  llmUrl={llmUrl}
                 />
               </div>
             </div>
