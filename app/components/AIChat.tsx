@@ -160,9 +160,9 @@ export default function AIChat({ model, modernUIMode }: Props) {
                     <div className="flex justify-start">
                         <div className="bg-gray-800/50 border border-white/5 rounded-2xl rounded-tl-sm px-5 py-3 backdrop-blur-sm">
                             <div className="flex space-x-2">
-                                <div className="w-2 h-2 bg-blue-400/50 rounded-full animate-pulse"></div>
-                                <div className="w-2 h-2 bg-violet-400/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-2 h-2 bg-purple-400/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                                <div className="w-2 h-2 bg-blue-400/50 rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-violet-400/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="w-2 h-2 bg-purple-400/50 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                             </div>
                         </div>
                     </div>
@@ -177,14 +177,29 @@ export default function AIChat({ model, modernUIMode }: Props) {
                         data-chat-input
                         ref={textareaRef}
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={isSignedIn ? "Type a message... (Press Enter to send)" : "Please sign in to chat..."}
+                        onChange={(e) => {
+                            setInput(e.target.value);
+                            // Auto-resize logic
+                            e.target.style.height = 'auto';
+                            e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSubmit();
+                            }
+                        }}
+                        placeholder={isSignedIn ? "Type a message... (Press Enter to send, Shift+Enter for new line)" : "Please sign in to chat..."}
                         disabled={!isSignedIn}
                         className="flex-1 resize-none p-3 bg-gray-800/50 border border-white/5 rounded-xl
                             focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/20 text-gray-100 
                             placeholder-gray-500 min-h-[44px] max-h-[200px] overflow-y-auto backdrop-blur-sm
                             disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        style={{
+                            height: 'auto',
+                            minHeight: '44px',
+                            maxHeight: '200px'
+                        }}
                     />
                     <button
                         type="submit"

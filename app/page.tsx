@@ -4,12 +4,19 @@ import { useState } from 'react';
 import AIChat from './components/AIChat';
 import PromptTemplates from './components/PromptTemplates';
 import ContextToggle from './components/ContextToggle';
+import ModelSelector from './components/ModelSelector';
 import './styles/cube.css';
+import RotatingCube from './components/RotatingCube';
 
 export default function Home() {
-  const [currentModel] = useState('deepseek-chat');
-  const [chatKey] = useState(0);
+  const [currentModel, setCurrentModel] = useState('deepseek-r1:1.5b');
+  const [chatKey, setChatKey] = useState(0);
   const [isModernUIMode, setIsModernUIMode] = useState(false);
+
+  const handleModelChange = (model: string) => {
+    setCurrentModel(model);
+    setChatKey(prev => prev + 1);
+  };
 
   const handleTemplateSelect = (prompt: string) => {
     // This will be passed to AIChat to auto-submit the template
@@ -27,6 +34,7 @@ export default function Home() {
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white">
       {/* Ambient background effect */}
+      <RotatingCube />
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.05),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.05),transparent_50%)] rotate-180" />
@@ -46,7 +54,11 @@ export default function Home() {
 
         {/* Main chat section */}
         <main className="flex-1 overflow-hidden px-4 relative pl-24">
-          <div className="mb-4 flex justify-center">
+          <div className="mb-4 flex flex-col items-center gap-4">
+            <ModelSelector 
+              currentModel={currentModel}
+              onModelChange={handleModelChange}
+            />
             <ContextToggle 
               isActive={isModernUIMode} 
               onToggle={() => setIsModernUIMode(!isModernUIMode)} 
