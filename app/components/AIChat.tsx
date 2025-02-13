@@ -9,6 +9,7 @@ import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-bash';
+import { useUser } from "@clerk/nextjs";
 
 interface Message {
     role: 'user' | 'assistant';
@@ -17,9 +18,11 @@ interface Message {
 
 interface Props {
     model: string;
+    modernUIMode: boolean;
 }
 
-export default function AIChat({ model }: Props) {
+export default function AIChat({ model, modernUIMode }: Props) {
+    const { isSignedIn } = useUser();
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
@@ -38,8 +41,23 @@ export default function AIChat({ model }: Props) {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+        }
+    }, [input]);
+
     const handleSubmit = async (e?: React.FormEvent) => {
         e?.preventDefault();
+        if (!isSignedIn) {
+            setMessages(prev => [...prev, { 
+                role: 'assistant', 
+                content: '❌ Please sign in to use the chat.' 
+            }]);
+            return;
+        }
+        
         if (!input.trim() || loading) return;
 
         const userMessage = input.trim();
@@ -56,7 +74,8 @@ export default function AIChat({ model }: Props) {
                 },
                 body: JSON.stringify({
                     messages: [{ role: "user", content: userMessage }],
-                    model: model
+                    model,
+                    modernUIMode
                 })
             });
 
@@ -89,9 +108,9 @@ export default function AIChat({ model }: Props) {
             <div className="prose prose-invert max-w-none">
                 <ReactMarkdown
                     components={{
-                        code({ inline, className, children, ...props }) {
+                        code({  className, children, ...props }) {
                             const match = /language-(\w+)/.exec(className || '');
-                            return !inline && match ? (
+                            return  match ? (
                                 <div className="relative group">
                                     <pre className={`${className} rounded-md !bg-gray-800/50`}>
                                         <code className={className} {...props}>
@@ -99,7 +118,7 @@ export default function AIChat({ model }: Props) {
                                         </code>
                                     </pre>
                                     <button 
-                                        onClick={() => navigator.clipboard.writeText(children.toString())}
+                                        onClick={() => navigator.clipboard.writeText(children?.toString() ?? '')}
                                         className="absolute top-2 right-2 p-2 rounded-md bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
                                         Copy
@@ -120,17 +139,17 @@ export default function AIChat({ model }: Props) {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-[600px] bg-gray-900 rounded-xl shadow-lg flex flex-col">
+        <div className="w-full h-full flex flex-col">
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {messages.map((message, index) => (
                     <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[85%] ${
                             message.role === 'user' 
-                                ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-800 text-gray-100'
-                            } rounded-2xl px-4 py-2 ${
-                                message.role === 'user' ? 'rounded-tr-none' : 'rounded-tl-none'
+                                ? 'bg-blue-500/10 border border-blue-500/20 text-blue-100' 
+                                : 'bg-gray-800/50 border border-white/5 text-gray-100'
+                            } rounded-2xl px-5 py-3 shadow-lg backdrop-blur-sm ${
+                                message.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'
                             }`}
                         >
                             <MessageContent content={message.content} role={message.role} />
@@ -139,11 +158,11 @@ export default function AIChat({ model }: Props) {
                 ))}
                 {loading && (
                     <div className="flex justify-start">
-                        <div className="bg-gray-800/80 rounded-2xl rounded-tl-none px-4 py-2">
+                        <div className="bg-gray-800/50 border border-white/5 rounded-2xl rounded-tl-sm px-5 py-3 backdrop-blur-sm">
                             <div className="flex space-x-2">
-                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                                <div className="w-2 h-2 bg-blue-400/50 rounded-full animate-pulse"></div>
+                                <div className="w-2 h-2 bg-violet-400/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="w-2 h-2 bg-purple-400/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                             </div>
                         </div>
                     </div>
@@ -152,22 +171,27 @@ export default function AIChat({ model }: Props) {
             </div>
 
             {/* Input Area */}
-            <div className="border-t border-gray-700 p-4">
-                <form onSubmit={handleSubmit} className="flex gap-2">
+            <div className="border-t border-white/5 p-6">
+                <form onSubmit={handleSubmit} className="flex gap-3">
                     <textarea
                         data-chat-input
                         ref={textareaRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Type a message... (Press Enter to send)"
-                        className="flex-1 resize-none p-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 text-gray-100 placeholder-gray-400"
-                        rows={1}
+                        placeholder={isSignedIn ? "Type a message... (Press Enter to send)" : "Please sign in to chat..."}
+                        disabled={!isSignedIn}
+                        className="flex-1 resize-none p-3 bg-gray-800/50 border border-white/5 rounded-xl
+                            focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/20 text-gray-100 
+                            placeholder-gray-500 min-h-[44px] max-h-[200px] overflow-y-auto backdrop-blur-sm
+                            disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     />
                     <button
                         type="submit"
-                        disabled={loading || !input.trim()}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors duration-200"
+                        disabled={loading || !input.trim() || !isSignedIn}
+                        className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl 
+                            hover:bg-blue-500/20 disabled:bg-gray-800/50 disabled:border-white/5 disabled:text-gray-600 
+                            disabled:cursor-not-allowed transition-all duration-200 self-end backdrop-blur-sm"
                     >
                         {loading ? (
                             <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

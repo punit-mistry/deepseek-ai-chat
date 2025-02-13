@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from '@clerk/nextjs'
+import ClerkNavigationHandler from './components/ClerkNavigationHandler';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,12 +25,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        elements: {
+          formButtonPrimary: 'bg-blue-500 hover:bg-blue-600',
+          footerActionLink: 'text-blue-400 hover:text-blue-500',
+          card: 'bg-gray-800/90 border border-gray-700',
+          headerTitle: 'text-gray-200',
+          headerSubtitle: 'text-gray-400',
+          socialButtonsBlockButton: 'bg-gray-700 border border-gray-600 hover:bg-gray-600',
+          socialButtonsBlockButtonText: 'text-gray-200',
+          formFieldInput: 'bg-gray-700 border-gray-600 text-gray-200',
+          formFieldLabel: 'text-gray-300',
+          footer: 'hidden'
+        },
+        layout: {
+          socialButtonsPlacement: "bottom",
+          privacyPageUrl: "false",
+          termsPageUrl: "false"
+        }
+      }}
+    >
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <ClerkNavigationHandler />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

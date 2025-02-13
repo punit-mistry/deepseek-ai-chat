@@ -2,92 +2,74 @@
 
 import { useState } from 'react';
 import AIChat from './components/AIChat';
-import RotatingCube from './components/RotatingCube';
-import ModelSwitch from './components/ModelSwitch';
 import PromptTemplates from './components/PromptTemplates';
+import ContextToggle from './components/ContextToggle';
 import './styles/cube.css';
 
 export default function Home() {
-  const [currentModel, setCurrentModel] = useState('deepseek-chat');
-  const [chatKey, setChatKey] = useState(0); // Used to reset chat when model changes
+  const [currentModel] = useState('deepseek-chat');
+  const [chatKey] = useState(0);
+  const [isModernUIMode, setIsModernUIMode] = useState(false);
 
-  const handleModelChange = (model: string) => {
-    setCurrentModel(model);
-    setChatKey(prev => prev + 1); // Reset chat when model changes
+  const handleTemplateSelect = (prompt: string) => {
+    // This will be passed to AIChat to auto-submit the template
+    const chatElement = document.querySelector('[data-chat-input]') as HTMLTextAreaElement;
+    if (chatElement) {
+      chatElement.value = prompt;
+      chatElement.dispatchEvent(new Event('input', { bubbles: true }));
+      // Automatically submit after a brief delay to ensure state updates
+      setTimeout(() => {
+        chatElement.form?.dispatchEvent(new Event('submit', { bubbles: true }));
+      }, 100);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white overflow-hidden">
-      {/* Glowing background effect */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(17,24,39,0.7),rgba(0,0,0,0.9))]"></div>
-
-      {/* Rotating Cube */}
-      <RotatingCube />
+    <div className="h-screen overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white">
+      {/* Ambient background effect */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.05),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.05),transparent_50%)] rotate-180" />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+      </div>
 
       {/* Main content */}
-      <div className="relative z-10">
-        {/* Header section */}
-        <header className="pt-16 pb-8 px-4 text-center">
-          <div className="animate-border inline-block rounded-3xl bg-[linear-gradient(110deg,#0ea5e9,45%,#8b5cf6,55%,#ec4899)] bg-[length:200%_100%] p-0.5">
-            <div className="rounded-3xl px-8 py-4 bg-gray-900">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 tracking-tight">
-                DeepSeek AI Chat
-              </h1>
-            </div>
-          </div>
-          <div className="mt-6 max-w-2xl mx-auto">
-            <p className="text-gray-300 text-lg">
-              Experience the power of advanced AI conversation. Simply type your message or use a template below.
-            </p>
-          </div>
+      <div className="relative z-10 h-full flex flex-col">
+        <header className="pt-8 pb-6 px-4 text-center flex-shrink-0">
+          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-violet-400 to-purple-400 tracking-tight mb-3">
+            DeepSeek AI Chat
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Experience the power of advanced AI conversation
+          </p>
         </header>
 
         {/* Main chat section */}
-        <main className="max-w-4xl mx-auto px-4 pb-16 relative">
-          {/* Model Switch */}
-          <ModelSwitch currentModel={currentModel} onModelChange={handleModelChange} />
+        <main className="flex-1 overflow-hidden px-4 relative pl-24">
+          <div className="mb-4 flex justify-center">
+            <ContextToggle 
+              isActive={isModernUIMode} 
+              onToggle={() => setIsModernUIMode(!isModernUIMode)} 
+            />
+          </div>
           
-          {/* Prompt Templates */}
-          <PromptTemplates onTemplateSelect={(prompt) => {
-            // You'll need to implement this method in AIChat component
-            // to programmatically set and submit a message
-            const chatElement = document.querySelector('[data-chat-input]') as HTMLTextAreaElement;
-            if (chatElement) {
-              chatElement.value = prompt;
-              chatElement.dispatchEvent(new Event('input', { bubbles: true }));
-              chatElement.form?.dispatchEvent(new Event('submit', { bubbles: true }));
-            }
-          }} />
+          <PromptTemplates onTemplateSelect={handleTemplateSelect} />
 
           {/* Chat container */}
-          <div className="relative p-[1px] rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-            <div className="bg-gray-900 rounded-2xl">
-              <AIChat key={chatKey} model={currentModel} />
-            </div>
-          </div>
-
-          {/* Features section */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm">
-            <div className="p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-blue-400 mb-2">🚀</div>
-              <h3 className="font-semibold mb-1">Advanced AI</h3>
-              <p className="text-gray-400">Powered by state-of-the-art language model</p>
-            </div>
-            <div className="p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-purple-400 mb-2">⚡</div>
-              <h3 className="font-semibold mb-1">Real-time Response</h3>
-              <p className="text-gray-400">Get instant answers to your questions</p>
-            </div>
-            <div className="p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-pink-400 mb-2">🎯</div>
-              <h3 className="font-semibold mb-1">Precise Answers</h3>
-              <p className="text-gray-400">Accurate and relevant responses</p>
+          <div className="h-[calc(100vh-348px)] relative max-w-4xl mx-auto">
+            <div className="absolute inset-0 p-[1px] rounded-3xl bg-gradient-to-r from-blue-500/20 via-violet-500/20 to-purple-500/20">
+              <div className="bg-gray-900/80 backdrop-blur-xl rounded-3xl h-full border border-white/5">
+                <AIChat 
+                  key={chatKey} 
+                  model={currentModel} 
+                  modernUIMode={isModernUIMode}
+                />
+              </div>
             </div>
           </div>
         </main>
 
-        {/* Footer */}
-        <footer className="text-center pb-8 text-gray-400 text-sm">
+        <footer className="text-center py-3 text-gray-500 text-sm flex-shrink-0">
           <p>Powered by DeepSeek R1 Language Model</p>
         </footer>
       </div>
