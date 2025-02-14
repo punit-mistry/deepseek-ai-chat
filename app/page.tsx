@@ -4,31 +4,25 @@ import { useState } from 'react';
 import AIChat from './components/AIChat';
 import PromptTemplates from './components/PromptTemplates';
 import ContextToggle from './components/ContextToggle';
-import ModelSelector from './components/ModelSelector';
 import './styles/cube.css';
 import RotatingCube from './components/RotatingCube';
 import LLMConfig from './components/LLMConfig';
 
 export default function Home() {
-  const [currentModel, setCurrentModel] = useState('deepseek-r1:1.5b');
+  const [currentModel] = useState('deepseek-r1:1.5b');
   const [chatKey, setChatKey] = useState(0);
   const [isModernUIMode, setIsModernUIMode] = useState(false);
   const [llmUrl, setLlmUrl] = useState('http://localhost:11434');
 
-  const handleModelChange = (model: string) => {
-    setCurrentModel(model);
-    setChatKey(prev => prev + 1);
-  };
-
   const handleTemplateSelect = (prompt: string) => {
-    // This will be passed to AIChat to auto-submit the template
     const chatElement = document.querySelector('[data-chat-input]') as HTMLTextAreaElement;
     if (chatElement) {
       chatElement.value = prompt;
       chatElement.dispatchEvent(new Event('input', { bubbles: true }));
-      // Automatically submit after a brief delay to ensure state updates
       setTimeout(() => {
         chatElement.form?.dispatchEvent(new Event('submit', { bubbles: true }));
+        // Reset chat when template is used
+        setChatKey(prev => prev + 1);
       }, 100);
     }
   };
@@ -61,10 +55,6 @@ export default function Home() {
               currentUrl={llmUrl}
               onUrlChange={setLlmUrl}
             />
-            {/* <ModelSelector 
-              currentModel={currentModel}
-              onModelChange={handleModelChange}
-            /> */}
             <ContextToggle 
               isActive={isModernUIMode} 
               onToggle={() => setIsModernUIMode(!isModernUIMode)} 

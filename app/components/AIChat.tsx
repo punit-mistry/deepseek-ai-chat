@@ -104,13 +104,6 @@ export default function AIChat({ model, modernUIMode, llmUrl }: Props) {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit();
-        }
-    };
-
     const MessageContent = ({ content, role }: { content: string, role: 'user' | 'assistant' }) => {
         if (role === 'user') {
             return <p className="whitespace-pre-wrap">{content}</p>;
@@ -191,7 +184,6 @@ export default function AIChat({ model, modernUIMode, llmUrl }: Props) {
                         value={input}
                         onChange={(e) => {
                             setInput(e.target.value);
-                            // Auto-resize logic
                             e.target.style.height = 'auto';
                             e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
                         }}

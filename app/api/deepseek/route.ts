@@ -7,6 +7,12 @@ interface Message {
     content: string;
 }
 
+interface APIError extends Error {
+    cause?: {
+        code: string;
+    };
+}
+
 // POST handler for the API endpoint
 export async function POST(request: Request) {
     try {
@@ -78,11 +84,11 @@ ${userMessage}`;
             return NextResponse.json({
                 content: cleanedResponse
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('LLM API error:', error);
             let errorMessage = 'Failed to connect to LLM API';
             
-            if (error.cause?.code === 'ECONNREFUSED') {
+            if ((error as APIError).cause?.code === 'ECONNREFUSED') {
                 errorMessage = `Cannot connect to LLM at ${llmUrl}. Please make sure the server is running and the URL is correct.`;
             }
 
@@ -92,7 +98,7 @@ ${userMessage}`;
             );
         }
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('API error:', error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
