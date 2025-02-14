@@ -36,7 +36,16 @@ export async function POST(request: Request) {
 
         let finalPrompt = userMessage;
         if (modernUIMode) {
-            finalPrompt = "Make this AI modern and minimalistic like ShadCN UI. Focus on clean, minimal design patterns.\n\n" + userMessage;
+            finalPrompt = `Enhance this code with modern Tailwind CSS styling. Focus on:
+- Clean, minimalistic design
+- Proper spacing and padding
+- Consistent color schemes
+- Responsive layout
+- Smooth transitions
+- Proper component structure
+Return ONLY the enhanced code without any explanations.
+
+${userMessage}`;
         }
 
         try {
@@ -54,8 +63,17 @@ export async function POST(request: Request) {
 
             const data = await response.json();
             
-            // Clean up response by removing <think> tags
-            const cleanedResponse = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            // Clean up response by removing <think> tags and any explanatory text in Modern UI mode
+            let cleanedResponse = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            
+            if (modernUIMode) {
+                // Extract only code blocks when in Modern UI mode
+                const codeBlockRegex = /```[\s\S]*?```/g;
+                const codeBlocks = cleanedResponse.match(codeBlockRegex);
+                if (codeBlocks) {
+                    cleanedResponse = codeBlocks.join('\n\n');
+                }
+            }
 
             return NextResponse.json({
                 content: cleanedResponse

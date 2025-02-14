@@ -61,10 +61,10 @@ export default function Home() {
               currentUrl={llmUrl}
               onUrlChange={setLlmUrl}
             />
-            <ModelSelector 
+            {/* <ModelSelector 
               currentModel={currentModel}
               onModelChange={handleModelChange}
-            />
+            /> */}
             <ContextToggle 
               isActive={isModernUIMode} 
               onToggle={() => setIsModernUIMode(!isModernUIMode)} 

@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DeepSeek AI Chat Interface
 
-## Getting Started
+A modern Next.js application that provides a sleek interface for interacting with DeepSeek AI models. Features include authentication, quick templates, and customizable UI modes.
 
-First, run the development server:
+## Features
 
+- 🚀 Real-time AI chat with DeepSeek models
+- 🔐 Secure authentication via Clerk
+- 📝 Quick templates for common development tasks
+- 🎨 Modern UI mode for enhanced code styling
+- 🔄 Configurable LLM endpoint
+- ✨ Responsive design with animations
+- 💻 Code syntax highlighting
+- 📋 One-click code copying
+
+## Prerequisites
+
+Before you begin, ensure you have:
+- Node.js 18+ installed
+- A Clerk account for authentication
+- A running DeepSeek server (local or remote)
+
+## Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd deepseek-chat
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Configure environment variables:
+Create a `.env.local` file in the root directory:
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Running the Project
 
-## Learn More
+1. Start your local DeepSeek server (default port: 11434)
 
-To learn more about Next.js, take a look at the following resources:
+2. Start the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Usage Guide
 
-## Deploy on Vercel
+### Authentication
+- Sign in using the button in the sidebar
+- Authentication is required to use the chat functionality
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### LLM Configuration
+- Enter your DeepSeek server URL in the top input field
+- Default URL: http://localhost:11434
+- Ensure your DeepSeek server is running and accessible
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Quick Templates
+The sidebar provides quick templates for common tasks:
+1. Click a template once to fill the chat input
+2. Template button will pulse to indicate it's ready
+3. Click again to send the prompt
+4. Available templates include:
+   - Clerk Authentication setup
+   - Stripe Integration guide
+   - Prisma Models configuration
+   - Environment Variables setup
+
+### Modern UI Mode
+- Toggle the Modern UI button to enhance code output
+- When active, AI responses will focus on modern, minimalistic UI patterns
+- Perfect for getting UI/UX improvement suggestions
+
+### Chat Interface
+- Expandable input box (up to 200px height)
+- Press Enter to send, Shift+Enter for new line
+- Code blocks feature syntax highlighting
+- Copy button for code snippets
+- Markdown support for formatted responses
+
+## Project Structure
+```
+deepseek-chat/
+├── app/
+│   ├── api/
+│   │   └── deepseek/
+│   │       └── route.ts      # API endpoint for DeepSeek
+│   │   ├── components/
+│   │   │   ├── AIChat.tsx       # Main chat component
+│   │   │   ├── AuthButtons.tsx  # Authentication UI
+│   │   │   ├── LLMConfig.tsx    # LLM URL configuration
+│   │   │   └── PromptTemplates.tsx # Template sidebar
+│   │   ├── styles/
+│   │   │   └── cube.css         # Animation styles
+│   │   └── page.tsx             # Main page
+│   └── middleware.ts            # Clerk authentication middleware
+```
+
+## Development
+
+### API Integration
+The project uses a Next.js API route to communicate with DeepSeek:
+- Endpoint: `/api/deepseek`
+- Supports authentication via Clerk
+- Handles error cases and connection issues
+- Cleans up AI responses for better presentation
+
+### UI Components
+Built with:
+- Tailwind CSS for styling
+- React Markdown for message formatting
+- Prism.js for code highlighting
+- Clerk for authentication
+
+## Troubleshooting
+
+Common issues and solutions:
+1. **Connection Error**: Ensure DeepSeek server is running and URL is correct
+2. **Authentication Error**: Verify Clerk credentials in .env.local
+3. **UI Issues**: Clear browser cache and reload
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Built with [Next.js 14](https://nextjs.org/)
+- Styled with [Tailwind CSS](https://tailwindcss.com/)
+- Authentication by [Clerk](https://clerk.dev/)
+- Code highlighting by [Prism.js](https://prismjs.com/)
